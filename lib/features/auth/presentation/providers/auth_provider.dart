@@ -1,4 +1,3 @@
-import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../core/providers/core_providers.dart';
 import '../../domain/entities/user.dart';
@@ -26,6 +25,9 @@ final signInUseCaseProvider = Provider<SignIn>((ref) {
 
 class AuthState extends BaseState {
   final User? user;
+  final String emailOrPhone;
+  final String password;
+  final bool isRememberMe;
   final String? emailOrPhoneError;
   final String? passwordError;
   final bool isFormValid;
@@ -35,6 +37,9 @@ class AuthState extends BaseState {
     super.errorMessage,
     super.successMessage,
     this.user,
+    this.emailOrPhone = '',
+    this.password = '',
+    this.isRememberMe = false,
     this.emailOrPhoneError,
     this.passwordError,
     this.isFormValid = false,
@@ -58,6 +63,9 @@ class AuthState extends BaseState {
     String? errorMessage,
     String? successMessage,
     User? user,
+    String? emailOrPhone,
+    String? password,
+    bool? isRememberMe,
     String? emailOrPhoneError,
     String? passwordError,
     bool? isFormValid,
@@ -67,6 +75,9 @@ class AuthState extends BaseState {
       errorMessage: errorMessage,
       successMessage: successMessage,
       user: user ?? this.user,
+      emailOrPhone: emailOrPhone ?? this.emailOrPhone,
+      password: password ?? this.password,
+      isRememberMe: isRememberMe ?? this.isRememberMe,
       emailOrPhoneError: emailOrPhoneError ?? this.emailOrPhoneError,
       passwordError: passwordError ?? this.passwordError,
       isFormValid: isFormValid ?? this.isFormValid,
@@ -75,26 +86,28 @@ class AuthState extends BaseState {
 }
 
 class AuthNotifier extends BaseNotifier<AuthState> {
-  final emailOrPhoneController = TextEditingController();
-  final passwordController = TextEditingController();
-  bool isRememberMe = false;
-
   @override
   AuthState build() {
-    emailOrPhoneController.addListener(_validateForm);
-    passwordController.addListener(_validateForm);
+    return const AuthState();
+  }
 
-    ref.onDispose(() {
-      emailOrPhoneController.dispose();
-      passwordController.dispose();
-    });
+  void updateEmailOrPhone(String val) {
+    state = state.copyWith(emailOrPhone: val);
+    _validateForm();
+  }
 
-    return AuthState();
+  void updatePassword(String val) {
+    state = state.copyWith(password: val);
+    _validateForm();
+  }
+
+  void toggleRememberMe(bool? val) {
+    state = state.copyWith(isRememberMe: val ?? false);
   }
 
   void _validateForm() {
-    final emailOrPhone = emailOrPhoneController.text;
-    final password = passwordController.text;
+    final emailOrPhone = state.emailOrPhone;
+    final password = state.password;
 
     String? emailOrPhoneErr;
     String? passwordErr;
@@ -111,20 +124,16 @@ class AuthNotifier extends BaseNotifier<AuthState> {
     state = state.copyWith(
       emailOrPhoneError: emailOrPhoneErr,
       passwordError: passwordErr,
-      isFormValid: emailOrPhoneErr == null && passwordErr == null,
+      isFormValid: emailOrPhoneErr == null && passwordErr == null && emailOrPhone.isNotEmpty && password.isNotEmpty,
     );
-  }
-
-  void toggleRememberMe(bool? val) {
-    isRememberMe = val ?? false;
   }
 
   Future<void> submitLogin() async {
     if (!state.isFormValid) return;
 
     final params = SignInParams(
-      emailOrPhone: emailOrPhoneController.text,
-      password: passwordController.text,
+      emailOrPhone: state.emailOrPhone,
+      password: state.password,
     );
 
     final signIn = ref.read(signInUseCaseProvider);

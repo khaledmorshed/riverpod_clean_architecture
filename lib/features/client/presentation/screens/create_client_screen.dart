@@ -1,17 +1,53 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../core/constants/constants.dart';
 import '../providers/client_provider.dart';
-import '../../../../core/base/base_screen.dart';
+import '../../../../core/base/base_stateful_screen.dart';
 
-class CreateClientScreen extends BaseScreen<CreateClientState> {
+class CreateClientScreen extends BaseStatefulScreen<CreateClientState> {
   const CreateClientScreen({super.key});
+
+  @override
+  BaseScreenState<CreateClientScreen, CreateClientState> createState() => _CreateClientScreenState();
+}
+
+class _CreateClientScreenState extends BaseScreenState<CreateClientScreen, CreateClientState> {
+  late final TextEditingController _firstNameController;
+  late final TextEditingController _lastNameController;
+  late final TextEditingController _emailController;
+  late final TextEditingController _mobileController;
+  late final TextEditingController _addressController;
+  late final TextEditingController _openingBalanceController;
+  late final TextEditingController _creditDueLimitController;
+
+  @override
+  void initState() {
+    super.initState();
+    _firstNameController = TextEditingController();
+    _lastNameController = TextEditingController();
+    _emailController = TextEditingController();
+    _mobileController = TextEditingController();
+    _addressController = TextEditingController();
+    _openingBalanceController = TextEditingController();
+    _creditDueLimitController = TextEditingController();
+  }
+
+  @override
+  void dispose() {
+    _firstNameController.dispose();
+    _lastNameController.dispose();
+    _emailController.dispose();
+    _mobileController.dispose();
+    _addressController.dispose();
+    _openingBalanceController.dispose();
+    _creditDueLimitController.dispose();
+    super.dispose();
+  }
 
   @override
   dynamic get provider => createClientNotifierProvider;
 
   @override
-  PreferredSizeWidget? appBar(BuildContext context, WidgetRef ref) {
+  PreferredSizeWidget? appBar(BuildContext context) {
     return AppBar(
       title: const Text(
         'Add New Client',
@@ -23,11 +59,33 @@ class CreateClientScreen extends BaseScreen<CreateClientState> {
   }
 
   @override
-  Widget body(BuildContext context, WidgetRef ref) {
+  Widget body(BuildContext context) {
     final state = ref.watch(createClientNotifierProvider);
     final notifier = ref.read(createClientNotifierProvider.notifier);
 
     ref.listen<CreateClientState>(createClientNotifierProvider, (previous, current) {
+      if (current.firstName != _firstNameController.text) {
+        _firstNameController.text = current.firstName;
+      }
+      if (current.lastName != _lastNameController.text) {
+        _lastNameController.text = current.lastName;
+      }
+      if (current.email != _emailController.text) {
+        _emailController.text = current.email;
+      }
+      if (current.mobile != _mobileController.text) {
+        _mobileController.text = current.mobile;
+      }
+      if (current.address != _addressController.text) {
+        _addressController.text = current.address;
+      }
+      if (current.openingBalance != _openingBalanceController.text) {
+        _openingBalanceController.text = current.openingBalance;
+      }
+      if (current.creditDueLimit != _creditDueLimitController.text) {
+        _creditDueLimitController.text = current.creditDueLimit;
+      }
+
       if (current.isSuccess && !(previous?.isSuccess ?? false)) {
         ref.invalidate(clientListProvider); // Invalidate list provider to trigger refresh
         Navigator.pop(context);
@@ -69,7 +127,8 @@ class CreateClientScreen extends BaseScreen<CreateClientState> {
 
                       // First Name
                       TextField(
-                        controller: notifier.firstNameController,
+                        controller: _firstNameController,
+                        onChanged: notifier.updateFirstName,
                         decoration: InputDecoration(
                           labelText: 'First Name',
                           errorText: state.firstNameError,
@@ -83,7 +142,8 @@ class CreateClientScreen extends BaseScreen<CreateClientState> {
 
                       // Last Name
                       TextField(
-                        controller: notifier.lastNameController,
+                        controller: _lastNameController,
+                        onChanged: notifier.updateLastName,
                         decoration: InputDecoration(
                           labelText: 'Last Name',
                           prefixIcon: const Icon(Icons.person_outline, color: Colors.indigo),
@@ -96,7 +156,8 @@ class CreateClientScreen extends BaseScreen<CreateClientState> {
 
                       // Mobile Number
                       TextField(
-                        controller: notifier.mobileController,
+                        controller: _mobileController,
+                        onChanged: notifier.updateMobile,
                         keyboardType: TextInputType.phone,
                         decoration: InputDecoration(
                           labelText: 'Mobile Number',
@@ -111,7 +172,8 @@ class CreateClientScreen extends BaseScreen<CreateClientState> {
 
                       // Email
                       TextField(
-                        controller: notifier.emailController,
+                        controller: _emailController,
+                        onChanged: notifier.updateEmail,
                         keyboardType: TextInputType.emailAddress,
                         decoration: InputDecoration(
                           labelText: 'Email Address',
@@ -125,7 +187,8 @@ class CreateClientScreen extends BaseScreen<CreateClientState> {
 
                       // Address
                       TextField(
-                        controller: notifier.addressController,
+                        controller: _addressController,
+                        onChanged: notifier.updateAddress,
                         decoration: InputDecoration(
                           labelText: 'Address',
                           prefixIcon: const Icon(Icons.location_on, color: Colors.indigo),
@@ -138,7 +201,8 @@ class CreateClientScreen extends BaseScreen<CreateClientState> {
 
                       // Opening Balance
                       TextField(
-                        controller: notifier.openingBalanceController,
+                        controller: _openingBalanceController,
+                        onChanged: notifier.updateOpeningBalance,
                         keyboardType: TextInputType.number,
                         decoration: InputDecoration(
                           labelText: 'Opening Balance',
@@ -152,7 +216,8 @@ class CreateClientScreen extends BaseScreen<CreateClientState> {
 
                       // Credit Due Limit
                       TextField(
-                        controller: notifier.creditDueLimitController,
+                        controller: _creditDueLimitController,
+                        onChanged: notifier.updateCreditDueLimit,
                         keyboardType: TextInputType.number,
                         decoration: InputDecoration(
                           labelText: 'Credit Due Limit',
@@ -166,7 +231,7 @@ class CreateClientScreen extends BaseScreen<CreateClientState> {
 
                       // Party Type Dropdown
                       DropdownButtonFormField<String>(
-                        initialValue: notifier.partyTypeId.isEmpty ? null : notifier.partyTypeId,
+                        initialValue: state.partyTypeId.isEmpty ? null : state.partyTypeId,
                         decoration: InputDecoration(
                           labelText: 'Party Type',
                           prefixIcon: const Icon(Icons.group, color: Colors.indigo),

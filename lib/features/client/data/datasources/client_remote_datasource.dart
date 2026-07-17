@@ -1,20 +1,12 @@
 import 'package:dio/dio.dart';
 import '../../../../core/error/exceptions.dart';
 import '../../../../core/network/dio_client.dart';
+import '../../domain/usecases/create_client.dart';
 import '../models/client_model.dart';
 
 abstract class ClientRemoteDataSource {
   Future<List<ClientModel>> getClients(int page, String search);
-  Future<String> createClient({
-    required String firstName,
-    required String lastName,
-    required String email,
-    required String phone,
-    required String address,
-    required String openingBalance,
-    required String creditDueLimit,
-    required String partyTypeId,
-  });
+  Future<String> createClient(CreateClientParams params);
 }
 
 class ClientRemoteDataSourceImpl implements ClientRemoteDataSource {
@@ -50,28 +42,19 @@ class ClientRemoteDataSourceImpl implements ClientRemoteDataSource {
   }
 
   @override
-  Future<String> createClient({
-    required String firstName,
-    required String lastName,
-    required String email,
-    required String phone,
-    required String address,
-    required String openingBalance,
-    required String creditDueLimit,
-    required String partyTypeId,
-  }) async {
+  Future<String> createClient(CreateClientParams params) async {
     try {
       final response = await dioClient.dio.post(
         'clients',
         data: {
-          'first_name': firstName,
-          'last_name': lastName,
-          'email': email,
-          'phone': phone,
-          'address': address,
-          'opening_balance': openingBalance,
-          'credit_due_limit': creditDueLimit,
-          'party_type_id': partyTypeId,
+          'first_name': params.firstName,
+          'last_name': params.lastName,
+          'email': params.email,
+          'phone': params.phone,
+          'address': params.address,
+          'opening_balance': params.openingBalance,
+          'credit_due_limit': params.creditDueLimit,
+          'party_type_id': params.partyTypeId,
           'latitude': '0',
           'longitude': '0',
         },

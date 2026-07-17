@@ -1,4 +1,3 @@
-import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../core/providers/core_providers.dart';
 import '../../domain/entities/tenant.dart';
@@ -26,6 +25,7 @@ final verifyDomainUseCaseProvider = Provider<VerifyDomain>((ref) {
 
 class TenantState extends BaseState {
   final Tenant? tenant;
+  final String domain;
   final String? domainError;
   final bool isFormValid;
 
@@ -34,6 +34,7 @@ class TenantState extends BaseState {
     super.errorMessage,
     super.successMessage,
     this.tenant,
+    this.domain = '',
     this.domainError,
     this.isFormValid = false,
   });
@@ -56,6 +57,7 @@ class TenantState extends BaseState {
     String? errorMessage,
     String? successMessage,
     Tenant? tenant,
+    String? domain,
     String? domainError,
     bool? isFormValid,
   }) {
@@ -64,6 +66,7 @@ class TenantState extends BaseState {
       errorMessage: errorMessage,
       successMessage: successMessage,
       tenant: tenant ?? this.tenant,
+      domain: domain ?? this.domain,
       domainError: domainError ?? this.domainError,
       isFormValid: isFormValid ?? this.isFormValid,
     );
@@ -71,21 +74,18 @@ class TenantState extends BaseState {
 }
 
 class TenantNotifier extends BaseNotifier<TenantState> {
-  final domainController = TextEditingController();
-
   @override
   TenantState build() {
-    domainController.addListener(_validateForm);
+    return const TenantState();
+  }
 
-    ref.onDispose(() {
-      domainController.dispose();
-    });
-
-    return TenantState();
+  void updateDomain(String val) {
+    state = state.copyWith(domain: val);
+    _validateForm();
   }
 
   void _validateForm() {
-    final domain = domainController.text.trim();
+    final domain = state.domain.trim();
     String? error;
 
     if (domain.isEmpty) {
@@ -107,7 +107,7 @@ class TenantNotifier extends BaseNotifier<TenantState> {
     final verifyUseCase = ref.read(verifyDomainUseCaseProvider);
 
     await executeTask(
-      verifyUseCase(domainController.text.trim()),
+      verifyUseCase(state.domain.trim()),
       onSuccess: (tenantData) {
         ref.read(localStorageProvider).saveTenant(tenantData.domain);
         state = state.copyWith(tenant: tenantData, successMessage: 'Domain verified successfully!');

@@ -1,12 +1,18 @@
+import 'package:freezed_annotation/freezed_annotation.dart';
 import '../../domain/entities/tenant.dart';
 
-class TenantModel extends Tenant {
-  TenantModel({
-    required super.domain,
-    required super.companyName,
-    required super.companyShortName,
-    required super.companyLogo,
-  });
+part 'tenant_model.freezed.dart';
+
+@freezed
+abstract class TenantModel with _$TenantModel implements Tenant {
+  const TenantModel._();
+
+  const factory TenantModel({
+    required String domain,
+    required String companyName,
+    required String companyShortName,
+    required String companyLogo,
+  }) = _TenantModel;
 
   factory TenantModel.fromJson(Map<String, dynamic> json, String domain) {
     final results = json['results'] as Map<String, dynamic>?;

@@ -32,15 +32,6 @@ class CreateClient implements UseCase<String, CreateClientParams> {
 
   @override
   Future<Either<Failure, String>> call(CreateClientParams params) async {
-    return await repository.createClient(
-      firstName: params.firstName,
-      lastName: params.lastName,
-      email: params.email,
-      phone: params.phone,
-      address: params.address,
-      openingBalance: params.openingBalance,
-      creditDueLimit: params.creditDueLimit,
-      partyTypeId: params.partyTypeId,
-    );
+    return await repository.createClient(params);
   }
 }

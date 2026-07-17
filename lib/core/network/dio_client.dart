@@ -12,6 +12,7 @@ class DioClient {
       ..options.responseType = ResponseType.json
       ..interceptors.addAll([
         HeaderInterceptor(_localStorage),
+        SessionInterceptor(_localStorage),
         LogInterceptor(
           request: true,
           requestHeader: true,
@@ -44,5 +45,20 @@ class HeaderInterceptor extends Interceptor {
     }
 
     super.onRequest(options, handler);
+  }
+}
+
+class SessionInterceptor extends Interceptor {
+  final LocalStorage _localStorage;
+
+  SessionInterceptor(this._localStorage);
+
+  @override
+  void onError(DioException err, ErrorInterceptorHandler handler) {
+    if (err.response?.statusCode == 401) {
+      _localStorage.clear();
+      // Token expired, clear session
+    }
+    super.onError(err, handler);
   }
 }

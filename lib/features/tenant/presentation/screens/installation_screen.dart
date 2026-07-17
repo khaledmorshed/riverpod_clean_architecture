@@ -1,20 +1,41 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../../../../core/base/base_screen.dart';
+import '../../../../core/base/base_stateful_screen.dart';
 import '../providers/tenant_provider.dart';
 
-class InstallationScreen extends BaseScreen<TenantState> {
+class InstallationScreen extends BaseStatefulScreen<TenantState> {
   const InstallationScreen({super.key});
+
+  @override
+  BaseScreenState<InstallationScreen, TenantState> createState() => _InstallationScreenState();
+}
+
+class _InstallationScreenState extends BaseScreenState<InstallationScreen, TenantState> {
+  late final TextEditingController _domainController;
+
+  @override
+  void initState() {
+    super.initState();
+    _domainController = TextEditingController();
+  }
+
+  @override
+  void dispose() {
+    _domainController.dispose();
+    super.dispose();
+  }
 
   @override
   dynamic get provider => tenantNotifierProvider;
 
   @override
-  Widget body(BuildContext context, WidgetRef ref) {
+  Widget body(BuildContext context) {
     final state = ref.watch(tenantNotifierProvider);
     final notifier = ref.read(tenantNotifierProvider.notifier);
 
     ref.listen<TenantState>(tenantNotifierProvider, (previous, current) {
+      if (current.domain != _domainController.text) {
+        _domainController.text = current.domain;
+      }
       if (current.tenant != null && previous?.tenant == null) {
         // Save tenant configuration locally, update API headers and then navigate to Login
         // Navigator.pushNamedAndRemoveUntil(context, LoginScreen.route, (route) => false);
@@ -72,7 +93,8 @@ class InstallationScreen extends BaseScreen<TenantState> {
 
                       // Store URL field
                       TextField(
-                        controller: notifier.domainController,
+                        controller: _domainController,
+                        onChanged: notifier.updateDomain,
                         decoration: InputDecoration(
                           labelText: 'Store URL',
                           hintText: 'e.g. mystore.example.com',

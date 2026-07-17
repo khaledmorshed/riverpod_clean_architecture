@@ -16,7 +16,10 @@ final localStorageProvider = Provider<LocalStorage>((ref) {
 
 final dioProvider = Provider<Dio>((ref) {
   return Dio(BaseOptions(
-    baseUrl: 'https://api.trialfirewoodlpg.com/api/v1/', // Default fallback base URL
+    baseUrl: const String.fromEnvironment(
+      'API_BASE_URL',
+      defaultValue: 'https://api.trialfirewoodlpg.com/api/v1/',
+    ),
   ));
 });
 

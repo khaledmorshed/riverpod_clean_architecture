@@ -1,20 +1,47 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../providers/auth_provider.dart';
-import '../../../../core/base/base_screen.dart';
+import '../../../../core/base/base_stateful_screen.dart';
 
-class LoginScreen extends BaseScreen<AuthState> {
+class LoginScreen extends BaseStatefulScreen<AuthState> {
   const LoginScreen({super.key});
+
+  @override
+  BaseScreenState<LoginScreen, AuthState> createState() => _LoginScreenState();
+}
+
+class _LoginScreenState extends BaseScreenState<LoginScreen, AuthState> {
+  late final TextEditingController _emailController;
+  late final TextEditingController _passwordController;
+
+  @override
+  void initState() {
+    super.initState();
+    _emailController = TextEditingController();
+    _passwordController = TextEditingController();
+  }
+
+  @override
+  void dispose() {
+    _emailController.dispose();
+    _passwordController.dispose();
+    super.dispose();
+  }
 
   @override
   dynamic get provider => authNotifierProvider;
 
   @override
-  Widget body(BuildContext context, WidgetRef ref) {
+  Widget body(BuildContext context) {
     final state = ref.watch(authNotifierProvider);
     final notifier = ref.read(authNotifierProvider.notifier);
 
     ref.listen<AuthState>(authNotifierProvider, (previous, current) {
+      if (current.emailOrPhone != _emailController.text) {
+        _emailController.text = current.emailOrPhone;
+      }
+      if (current.password != _passwordController.text) {
+        _passwordController.text = current.password;
+      }
       if (current.user != null && previous?.user == null) {
         // Navigate to dashboard/home screen
       }
@@ -71,7 +98,8 @@ class LoginScreen extends BaseScreen<AuthState> {
 
                       // Email/Phone Field
                       TextField(
-                        controller: notifier.emailOrPhoneController,
+                        controller: _emailController,
+                        onChanged: notifier.updateEmailOrPhone,
                         decoration: InputDecoration(
                           labelText: 'Email or Phone Number',
                           errorText: state.emailOrPhoneError,
@@ -85,7 +113,8 @@ class LoginScreen extends BaseScreen<AuthState> {
 
                       // Password Field
                       TextField(
-                        controller: notifier.passwordController,
+                        controller: _passwordController,
+                        onChanged: notifier.updatePassword,
                         obscureText: true,
                         decoration: InputDecoration(
                           labelText: 'Password',
@@ -102,7 +131,7 @@ class LoginScreen extends BaseScreen<AuthState> {
                       Row(
                         children: [
                           Checkbox(
-                            value: notifier.isRememberMe,
+                            value: state.isRememberMe,
                             activeColor: Colors.indigo,
                             onChanged: (val) {
                               notifier.toggleRememberMe(val);
@@ -151,9 +180,9 @@ class LoginScreen extends BaseScreen<AuthState> {
                     ],
                   ),
                 ),
+              ),
             ),
           ),
-        ),
       );
   }
 }

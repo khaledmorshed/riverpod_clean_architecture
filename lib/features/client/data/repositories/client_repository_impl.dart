@@ -3,6 +3,7 @@ import '../../../../core/error/exceptions.dart';
 import '../../../../core/error/failures.dart';
 import '../../domain/entities/client.dart';
 import '../../domain/repositories/client_repository.dart';
+import '../../domain/usecases/create_client.dart';
 import '../datasources/client_remote_datasource.dart';
 
 class ClientRepositoryImpl implements ClientRepository {
@@ -23,27 +24,9 @@ class ClientRepositoryImpl implements ClientRepository {
   }
 
   @override
-  Future<Either<Failure, String>> createClient({
-    required String firstName,
-    required String lastName,
-    required String email,
-    required String phone,
-    required String address,
-    required String openingBalance,
-    required String creditDueLimit,
-    required String partyTypeId,
-  }) async {
+  Future<Either<Failure, String>> createClient(CreateClientParams params) async {
     try {
-      final message = await remoteDataSource.createClient(
-        firstName: firstName,
-        lastName: lastName,
-        email: email,
-        phone: phone,
-        address: address,
-        openingBalance: openingBalance,
-        creditDueLimit: creditDueLimit,
-        partyTypeId: partyTypeId,
-      );
+      final message = await remoteDataSource.createClient(params);
       return Right(message);
     } on ServerException catch (e) {
       return Left(ServerFailure(e.message));

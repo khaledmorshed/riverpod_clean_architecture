@@ -1,4 +1,3 @@
-import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:fpdart/fpdart.dart';
 import '../../../../core/error/failures.dart';
@@ -54,6 +53,14 @@ final clientListProvider = NotifierProvider<ClientListNotifier, PaginatedState<C
 // Create Client State & Notifier
 class CreateClientState extends BaseState {
   final bool isSuccess;
+  final String firstName;
+  final String lastName;
+  final String email;
+  final String mobile;
+  final String address;
+  final String openingBalance;
+  final String creditDueLimit;
+  final String partyTypeId;
   final String? firstNameError;
   final String? mobileError;
   final bool isFormValid;
@@ -63,6 +70,14 @@ class CreateClientState extends BaseState {
     super.errorMessage,
     super.successMessage,
     this.isSuccess = false,
+    this.firstName = '',
+    this.lastName = '',
+    this.email = '',
+    this.mobile = '',
+    this.address = '',
+    this.openingBalance = '',
+    this.creditDueLimit = '',
+    this.partyTypeId = '',
     this.firstNameError,
     this.mobileError,
     this.isFormValid = false,
@@ -86,6 +101,14 @@ class CreateClientState extends BaseState {
     String? errorMessage,
     String? successMessage,
     bool? isSuccess,
+    String? firstName,
+    String? lastName,
+    String? email,
+    String? mobile,
+    String? address,
+    String? openingBalance,
+    String? creditDueLimit,
+    String? partyTypeId,
     String? firstNameError,
     String? mobileError,
     bool? isFormValid,
@@ -95,6 +118,14 @@ class CreateClientState extends BaseState {
       errorMessage: errorMessage,
       successMessage: successMessage,
       isSuccess: isSuccess ?? this.isSuccess,
+      firstName: firstName ?? this.firstName,
+      lastName: lastName ?? this.lastName,
+      email: email ?? this.email,
+      mobile: mobile ?? this.mobile,
+      address: address ?? this.address,
+      openingBalance: openingBalance ?? this.openingBalance,
+      creditDueLimit: creditDueLimit ?? this.creditDueLimit,
+      partyTypeId: partyTypeId ?? this.partyTypeId,
       firstNameError: firstNameError ?? this.firstNameError,
       mobileError: mobileError ?? this.mobileError,
       isFormValid: isFormValid ?? this.isFormValid,
@@ -103,36 +134,49 @@ class CreateClientState extends BaseState {
 }
 
 class CreateClientNotifier extends BaseNotifier<CreateClientState> {
-  final firstNameController = TextEditingController();
-  final lastNameController = TextEditingController();
-  final emailController = TextEditingController();
-  final mobileController = TextEditingController();
-  final addressController = TextEditingController();
-  final openingBalanceController = TextEditingController();
-  final creditDueLimitController = TextEditingController();
-  String partyTypeId = '';
-
   @override
   CreateClientState build() {
-    firstNameController.addListener(_validateForm);
-    mobileController.addListener(_validateForm);
+    return const CreateClientState();
+  }
 
-    ref.onDispose(() {
-      firstNameController.dispose();
-      lastNameController.dispose();
-      emailController.dispose();
-      mobileController.dispose();
-      addressController.dispose();
-      openingBalanceController.dispose();
-      creditDueLimitController.dispose();
-    });
+  void updateFirstName(String val) {
+    state = state.copyWith(firstName: val);
+    _validateForm();
+  }
 
-    return CreateClientState();
+  void updateLastName(String val) {
+    state = state.copyWith(lastName: val);
+  }
+
+  void updateEmail(String val) {
+    state = state.copyWith(email: val);
+  }
+
+  void updateMobile(String val) {
+    state = state.copyWith(mobile: val);
+    _validateForm();
+  }
+
+  void updateAddress(String val) {
+    state = state.copyWith(address: val);
+  }
+
+  void updateOpeningBalance(String val) {
+    state = state.copyWith(openingBalance: val);
+  }
+
+  void updateCreditDueLimit(String val) {
+    state = state.copyWith(creditDueLimit: val);
+  }
+
+  void setPartyType(String id) {
+    state = state.copyWith(partyTypeId: id);
+    _validateForm();
   }
 
   void _validateForm() {
-    final firstName = firstNameController.text;
-    final mobile = mobileController.text;
+    final firstName = state.firstName.trim();
+    final mobile = state.mobile.trim();
 
     String? firstNameErr;
     String? mobileErr;
@@ -147,13 +191,8 @@ class CreateClientNotifier extends BaseNotifier<CreateClientState> {
     state = state.copyWith(
       firstNameError: firstNameErr,
       mobileError: mobileErr,
-      isFormValid: firstNameErr == null && mobileErr == null && partyTypeId.isNotEmpty,
+      isFormValid: firstNameErr == null && mobileErr == null && state.partyTypeId.isNotEmpty && firstName.isNotEmpty && mobile.isNotEmpty,
     );
-  }
-
-  void setPartyType(String id) {
-    partyTypeId = id;
-    _validateForm();
   }
 
   Future<void> submitClient() async {
@@ -162,14 +201,14 @@ class CreateClientNotifier extends BaseNotifier<CreateClientState> {
     state = state.copyWith(isSuccess: false);
 
     final params = CreateClientParams(
-      firstName: firstNameController.text,
-      lastName: lastNameController.text,
-      email: emailController.text,
-      phone: mobileController.text,
-      address: addressController.text,
-      openingBalance: openingBalanceController.text,
-      creditDueLimit: creditDueLimitController.text,
-      partyTypeId: partyTypeId,
+      firstName: state.firstName,
+      lastName: state.lastName,
+      email: state.email,
+      phone: state.mobile,
+      address: state.address,
+      openingBalance: state.openingBalance,
+      creditDueLimit: state.creditDueLimit,
+      partyTypeId: state.partyTypeId,
     );
 
     final createClient = ref.read(createClientUseCaseProvider);

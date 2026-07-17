@@ -1,17 +1,23 @@
+import 'package:freezed_annotation/freezed_annotation.dart';
 import '../../domain/entities/client.dart';
 
-class ClientModel extends Client {
-  ClientModel({
-    required super.id,
-    required super.displayName,
-    required super.email,
-    required super.phone,
-    required super.address,
-    required super.status,
-    required super.totalDue,
-    required super.totalPaid,
-    required super.currentBalance,
-  });
+part 'client_model.freezed.dart';
+
+@freezed
+abstract class ClientModel with _$ClientModel implements Client {
+  const ClientModel._();
+
+  const factory ClientModel({
+    required String id,
+    required String displayName,
+    required String email,
+    required String phone,
+    required String address,
+    required String status,
+    required String totalDue,
+    required String totalPaid,
+    required String currentBalance,
+  }) = _ClientModel;
 
   factory ClientModel.fromJson(Map<String, dynamic> json) {
     return ClientModel(
