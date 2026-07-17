@@ -1,27 +1,9 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../../../../core/providers/core_providers.dart';
 import '../../domain/entities/tenant.dart';
-import '../../domain/repositories/tenant_repository.dart';
-import '../../domain/usecases/verify_domain.dart';
-import '../../data/datasources/tenant_remote_datasource.dart';
-import '../../data/repositories/tenant_repository_impl.dart';
 import '../../../../core/base/base_state.dart';
 import '../../../../core/base/base_notifier.dart';
-
-final tenantRemoteDataSourceProvider = Provider<TenantRemoteDataSource>((ref) {
-  final dioClient = ref.watch(dioClientProvider);
-  return TenantRemoteDataSourceImpl(dioClient);
-});
-
-final tenantRepositoryProvider = Provider<TenantRepository>((ref) {
-  final remoteDataSource = ref.watch(tenantRemoteDataSourceProvider);
-  return TenantRepositoryImpl(remoteDataSource);
-});
-
-final verifyDomainUseCaseProvider = Provider<VerifyDomain>((ref) {
-  final repository = ref.watch(tenantRepositoryProvider);
-  return VerifyDomain(repository);
-});
+import '../../../../core/providers/core_providers.dart';
+import '../../data/repositories/tenant_repository_impl.dart';
 
 class TenantState extends BaseState {
   final Tenant? tenant;

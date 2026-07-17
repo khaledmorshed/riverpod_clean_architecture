@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
+import '../../../../core/routes/app_router.dart';
 import '../providers/auth_provider.dart';
 import '../../../../core/base/base_stateful_screen.dart';
 
@@ -31,19 +34,21 @@ class _LoginScreenState extends BaseScreenState<LoginScreen, AuthState> {
   dynamic get provider => authNotifierProvider;
 
   @override
+  bool get isLoading => ref.watch(authNotifierProvider.select((s) => s.isLoading));
+
+  @override
   Widget body(BuildContext context) {
-    final state = ref.watch(authNotifierProvider);
+    final emailOrPhoneError = ref.watch(authNotifierProvider.select((s) => s.emailOrPhoneError));
+    final passwordError = ref.watch(authNotifierProvider.select((s) => s.passwordError));
+    final isRememberMe = ref.watch(authNotifierProvider.select((s) => s.isRememberMe));
+    final isFormValid = ref.watch(authNotifierProvider.select((s) => s.isFormValid));
+    final isLoading = ref.watch(authNotifierProvider.select((s) => s.isLoading));
+
     final notifier = ref.read(authNotifierProvider.notifier);
 
     ref.listen<AuthState>(authNotifierProvider, (previous, current) {
-      if (current.emailOrPhone != _emailController.text) {
-        _emailController.text = current.emailOrPhone;
-      }
-      if (current.password != _passwordController.text) {
-        _passwordController.text = current.password;
-      }
       if (current.user != null && previous?.user == null) {
-        // Navigate to dashboard/home screen
+        context.goNamed(AppRoutes.clients);
       }
     });
 
@@ -102,7 +107,7 @@ class _LoginScreenState extends BaseScreenState<LoginScreen, AuthState> {
                         onChanged: notifier.updateEmailOrPhone,
                         decoration: InputDecoration(
                           labelText: 'Email or Phone Number',
-                          errorText: state.emailOrPhoneError,
+                          errorText: emailOrPhoneError,
                           prefixIcon: const Icon(Icons.person, color: Colors.indigo),
                           border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(16),
@@ -118,7 +123,7 @@ class _LoginScreenState extends BaseScreenState<LoginScreen, AuthState> {
                         obscureText: true,
                         decoration: InputDecoration(
                           labelText: 'Password',
-                          errorText: state.passwordError,
+                          errorText: passwordError,
                           prefixIcon: const Icon(Icons.lock, color: Colors.indigo),
                           border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(16),
@@ -131,7 +136,7 @@ class _LoginScreenState extends BaseScreenState<LoginScreen, AuthState> {
                       Row(
                         children: [
                           Checkbox(
-                            value: state.isRememberMe,
+                            value: isRememberMe,
                             activeColor: Colors.indigo,
                             onChanged: (val) {
                               notifier.toggleRememberMe(val);
@@ -160,7 +165,7 @@ class _LoginScreenState extends BaseScreenState<LoginScreen, AuthState> {
 
                       // Login Button
                       ElevatedButton(
-                        onPressed: (state.isFormValid && !state.isLoading)
+                        onPressed: (isFormValid && !isLoading)
                             ? () => notifier.submitLogin()
                             : null,
                         style: ElevatedButton.styleFrom(

@@ -9,7 +9,15 @@ abstract class BaseNotifier<T extends BaseState> extends Notifier<T> {
     Function(R data)? onSuccess,
     Function(Failure failure)? onError,
     bool showLoading = true,
+    bool ignoreConcurrency = false,
   }) async {
+    // 1. Prevent concurrent double-submits unless explicitly ignored (e.g. search query refresh)
+    if (!ignoreConcurrency && showLoading && state.isLoading) return;
+
+    // 2. Track disposal state during async execution
+    bool isDisposed = false;
+    ref.onDispose(() => isDisposed = true);
+
     if (showLoading) {
       state = state.copyWithBase(
         isLoading: true, 
@@ -19,6 +27,9 @@ abstract class BaseNotifier<T extends BaseState> extends Notifier<T> {
     }
 
     final result = await task;
+
+    // 3. Prevent modifying state after provider auto-disposal
+    if (isDisposed) return;
 
     result.fold(
       (failure) {

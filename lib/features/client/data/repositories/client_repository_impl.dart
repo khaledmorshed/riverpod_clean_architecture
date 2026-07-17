@@ -1,9 +1,11 @@
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:fpdart/fpdart.dart';
 import '../../../../core/error/exceptions.dart';
 import '../../../../core/error/failures.dart';
 import '../../domain/entities/client.dart';
 import '../../domain/repositories/client_repository.dart';
 import '../../domain/usecases/create_client.dart';
+import '../../domain/usecases/get_clients.dart';
 import '../datasources/client_remote_datasource.dart';
 
 class ClientRepositoryImpl implements ClientRepository {
@@ -18,6 +20,8 @@ class ClientRepositoryImpl implements ClientRepository {
       return Right(clients);
     } on ServerException catch (e) {
       return Left(ServerFailure(e.message));
+    } on NetworkException catch (e) {
+      return Left(NetworkFailure(e.message));
     } catch (e) {
       return Left(ServerFailure(e.toString()));
     }
@@ -30,8 +34,25 @@ class ClientRepositoryImpl implements ClientRepository {
       return Right(message);
     } on ServerException catch (e) {
       return Left(ServerFailure(e.message));
+    } on NetworkException catch (e) {
+      return Left(NetworkFailure(e.message));
     } catch (e) {
       return Left(ServerFailure(e.toString()));
     }
   }
 }
+
+final clientRepositoryProvider = Provider<ClientRepository>((ref) {
+  final remoteDataSource = ref.watch(clientRemoteDataSourceProvider);
+  return ClientRepositoryImpl(remoteDataSource);
+});
+
+final getClientsUseCaseProvider = Provider<GetClients>((ref) {
+  final repository = ref.watch(clientRepositoryProvider);
+  return GetClients(repository);
+});
+
+final createClientUseCaseProvider = Provider<CreateClient>((ref) {
+  final repository = ref.watch(clientRepositoryProvider);
+  return CreateClient(repository);
+});

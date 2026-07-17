@@ -7,6 +7,8 @@ abstract class PaginatedNotifier<T, Params> extends BaseNotifier<PaginatedState<
   Future<Either<Failure, List<T>>> fetchCall(Params params);
   Params buildParams(int page, String search);
 
+  int _activeRequestId = 0;
+
   @override
   PaginatedState<T> build() {
     Future.microtask(() => fetchItems(refresh: true));
@@ -14,9 +16,12 @@ abstract class PaginatedNotifier<T, Params> extends BaseNotifier<PaginatedState<
   }
 
   Future<void> fetchItems({bool refresh = false}) async {
-    if (state.isLoading || state.isPaging) return;
+    // If it's a regular pagination load (not a refresh) and we are loading, ignore.
+    if (!refresh && (state.isLoading || state.isPaging)) return;
 
     final targetPage = refresh ? 1 : state.page;
+    final requestId = ++_activeRequestId;
+
     if (!refresh) {
       state = state.copyWith(isPaging: true);
     }
@@ -26,7 +31,11 @@ abstract class PaginatedNotifier<T, Params> extends BaseNotifier<PaginatedState<
     await executeTask(
       fetchCall(params),
       showLoading: refresh,
+      ignoreConcurrency: refresh, // Overlapping search queries are allowed
       onSuccess: (newItems) {
+        // Discard out-of-order responses if a newer request was fired
+        if (requestId != _activeRequestId) return;
+
         state = state.copyWith(
           items: refresh ? newItems : [...state.items, ...newItems],
           page: refresh ? 2 : state.page + 1,
@@ -34,6 +43,7 @@ abstract class PaginatedNotifier<T, Params> extends BaseNotifier<PaginatedState<
         );
       },
       onError: (_) {
+        if (requestId != _activeRequestId) return;
         state = state.copyWith(isPaging: false);
       },
     );

@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import '../providers/client_provider.dart';
 import '../../../../core/base/base_stateful_screen.dart';
 import '../../../../core/base/paginated_state.dart';
 import '../../../../core/widgets/paging_view.dart';
+import '../../../../core/routes/app_router.dart';
 import '../../domain/entities/client.dart';
-import 'create_client_screen.dart';
 
 class ClientListScreen extends BaseStatefulScreen<PaginatedState<Client>> {
   const ClientListScreen({super.key});
@@ -26,6 +28,9 @@ class _ClientListScreenState extends BaseScreenState<ClientListScreen, Paginated
   dynamic get provider => clientListProvider;
 
   @override
+  bool get isLoading => ref.watch(clientListProvider.select((s) => s.isLoading));
+
+  @override
   PreferredSizeWidget? appBar(BuildContext context) {
     return AppBar(
       title: const Text(
@@ -41,10 +46,7 @@ class _ClientListScreenState extends BaseScreenState<ClientListScreen, Paginated
   Widget? floatingActionButton(BuildContext context) {
     return FloatingActionButton.extended(
       onPressed: () {
-        Navigator.push(
-          context,
-          MaterialPageRoute(builder: (context) => const CreateClientScreen()),
-        );
+        context.pushNamed(AppRoutes.createClient);
       },
       backgroundColor: Colors.indigo,
       icon: const Icon(Icons.add, color: Colors.white),
@@ -54,7 +56,9 @@ class _ClientListScreenState extends BaseScreenState<ClientListScreen, Paginated
 
   @override
   Widget body(BuildContext context) {
-    final state = ref.watch(clientListProvider);
+    final items = ref.watch(clientListProvider.select((s) => s.items));
+    final isPaging = ref.watch(clientListProvider.select((s) => s.isPaging));
+    final isLoading = ref.watch(clientListProvider.select((s) => s.isLoading));
     final notifier = ref.read(clientListProvider.notifier);
 
     return Container(
@@ -63,7 +67,7 @@ class _ClientListScreenState extends BaseScreenState<ClientListScreen, Paginated
           colors: [Colors.indigo, Colors.blueAccent],
           begin: Alignment.topCenter,
           end: Alignment.bottomCenter,
-        ),
+      ),
       ),
       child: Column(
           children: [
@@ -99,8 +103,8 @@ class _ClientListScreenState extends BaseScreenState<ClientListScreen, Paginated
                 onLoadNextPage: () {
                   ref.read(clientListProvider.notifier).fetchItems();
                 },
-                isLoadingNextPage: state.isPaging,
-                child: state.items.isEmpty && !state.isLoading
+                isLoadingNextPage: isPaging,
+                child: items.isEmpty && !isLoading
                     ? const Center(
                         child: Text(
                           'No clients found.',
@@ -110,9 +114,9 @@ class _ClientListScreenState extends BaseScreenState<ClientListScreen, Paginated
                     : ListView.builder(
                         physics: const AlwaysScrollableScrollPhysics(),
                         padding: const EdgeInsets.symmetric(horizontal: 16),
-                        itemCount: state.items.length + ((state.isLoading || state.isPaging) ? 1 : 0),
+                        itemCount: items.length + ((isLoading || isPaging) ? 1 : 0),
                         itemBuilder: (context, index) {
-                          if (index == state.items.length) {
+                          if (index == items.length) {
                             return const Center(
                               child: Padding(
                                 padding: EdgeInsets.all(16.0),
@@ -121,7 +125,7 @@ class _ClientListScreenState extends BaseScreenState<ClientListScreen, Paginated
                             );
                           }
 
-                          final client = state.items[index];
+                          final client = items[index];
 
                           return Card(
                             margin: const EdgeInsets.only(bottom: 12),

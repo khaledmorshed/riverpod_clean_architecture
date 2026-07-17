@@ -1,6 +1,8 @@
-import 'package:dio/dio.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../../../core/base/base_remote_datasource.dart';
 import '../../../../core/error/exceptions.dart';
 import '../../../../core/network/dio_client.dart';
+import '../../../../core/providers/core_providers.dart';
 import '../../domain/usecases/create_client.dart';
 import '../models/client_model.dart';
 
@@ -9,67 +11,71 @@ abstract class ClientRemoteDataSource {
   Future<String> createClient(CreateClientParams params);
 }
 
-class ClientRemoteDataSourceImpl implements ClientRemoteDataSource {
+class ClientRemoteDataSourceImpl extends BaseRemoteDataSource implements ClientRemoteDataSource {
   final DioClient dioClient;
 
   ClientRemoteDataSourceImpl(this.dioClient);
 
   @override
   Future<List<ClientModel>> getClients(int page, String search) async {
-    try {
-      final response = await dioClient.dio.get(
-        'clients',
-        queryParameters: {
-          'page': page,
-          'search': search,
-          'limit': 15,
-        },
-      );
+    final dioCall = dioClient.dio.get(
+      'clients',
+      queryParameters: {
+        'page': page,
+        'search': search,
+        'limit': 15,
+      },
+    );
 
+    try {
+      final response = await callApiWithErrorParser(dioCall);
       if (response.statusCode == 200) {
         final results = response.data['results'] as Map<String, dynamic>?;
         final data = results?['data'] as List<dynamic>? ?? [];
         return data.map((json) => ClientModel.fromJson(json)).toList();
       } else {
-        throw ServerException(response.data['message'] ?? 'Failed to get clients');
+        final msg = response.data is Map ? response.data['message']?.toString() : null;
+        throw ServerException(msg ?? 'Failed to get clients');
       }
-    } on DioException catch (e) {
-      final errorMessage = e.response?.data?['message'] ?? e.message ?? 'Server error';
-      throw ServerException(errorMessage);
     } catch (e) {
-      throw ServerException(e.toString());
+      rethrow;
     }
   }
 
   @override
   Future<String> createClient(CreateClientParams params) async {
-    try {
-      final response = await dioClient.dio.post(
-        'clients',
-        data: {
-          'first_name': params.firstName,
-          'last_name': params.lastName,
-          'email': params.email,
-          'phone': params.phone,
-          'address': params.address,
-          'opening_balance': params.openingBalance,
-          'credit_due_limit': params.creditDueLimit,
-          'party_type_id': params.partyTypeId,
-          'latitude': '0',
-          'longitude': '0',
-        },
-      );
+    final dioCall = dioClient.dio.post(
+      'clients',
+      data: {
+        'first_name': params.firstName,
+        'last_name': params.lastName,
+        'email': params.email,
+        'phone': params.phone,
+        'address': params.address,
+        'opening_balance': params.openingBalance,
+        'credit_due_limit': params.creditDueLimit,
+        'party_type_id': params.partyTypeId,
+        'latitude': '0',
+        'longitude': '0',
+      },
+    );
 
+    try {
+      final response = await callApiWithErrorParser(dioCall);
       if (response.statusCode == 200 || response.statusCode == 201) {
-        return response.data['message'] ?? 'Client created successfully';
+        final msg = response.data is Map ? response.data['message']?.toString() : null;
+        return msg ?? 'Client created successfully';
       } else {
-        throw ServerException(response.data['message'] ?? 'Failed to create client');
+        final msg = response.data is Map ? response.data['message']?.toString() : null;
+        throw ServerException(msg ?? 'Failed to create client');
       }
-    } on DioException catch (e) {
-      final errorMessage = e.response?.data?['message'] ?? e.message ?? 'Server error';
-      throw ServerException(errorMessage);
     } catch (e) {
-      throw ServerException(e.toString());
+      rethrow;
     }
   }
 }
+
+final clientRemoteDataSourceProvider = Provider<ClientRemoteDataSource>((ref) {
+  final dioClient = ref.watch(dioClientProvider);
+  return ClientRemoteDataSourceImpl(dioClient);
+});

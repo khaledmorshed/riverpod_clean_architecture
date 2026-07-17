@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
+import '../../../../core/routes/app_router.dart';
 import '../../../../core/base/base_stateful_screen.dart';
 import '../providers/tenant_provider.dart';
 
@@ -28,17 +31,19 @@ class _InstallationScreenState extends BaseScreenState<InstallationScreen, Tenan
   dynamic get provider => tenantNotifierProvider;
 
   @override
+  bool get isLoading => ref.watch(tenantNotifierProvider.select((s) => s.isLoading));
+
+  @override
   Widget body(BuildContext context) {
-    final state = ref.watch(tenantNotifierProvider);
+    final domainError = ref.watch(tenantNotifierProvider.select((s) => s.domainError));
+    final isFormValid = ref.watch(tenantNotifierProvider.select((s) => s.isFormValid));
+    final isLoading = ref.watch(tenantNotifierProvider.select((s) => s.isLoading));
+
     final notifier = ref.read(tenantNotifierProvider.notifier);
 
     ref.listen<TenantState>(tenantNotifierProvider, (previous, current) {
-      if (current.domain != _domainController.text) {
-        _domainController.text = current.domain;
-      }
       if (current.tenant != null && previous?.tenant == null) {
-        // Save tenant configuration locally, update API headers and then navigate to Login
-        // Navigator.pushNamedAndRemoveUntil(context, LoginScreen.route, (route) => false);
+        context.goNamed(AppRoutes.login);
       }
     });
 
@@ -98,7 +103,7 @@ class _InstallationScreenState extends BaseScreenState<InstallationScreen, Tenan
                         decoration: InputDecoration(
                           labelText: 'Store URL',
                           hintText: 'e.g. mystore.example.com',
-                          errorText: state.domainError,
+                          errorText: domainError,
                           prefixIcon: const Icon(Icons.domain, color: Colors.indigo),
                           border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(12),
@@ -109,7 +114,7 @@ class _InstallationScreenState extends BaseScreenState<InstallationScreen, Tenan
 
                       // Verify Button
                       ElevatedButton(
-                        onPressed: (state.isFormValid && !state.isLoading)
+                        onPressed: (isFormValid && !isLoading)
                             ? () => notifier.verifyDomain()
                             : null,
                         style: ElevatedButton.styleFrom(

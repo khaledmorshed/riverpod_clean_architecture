@@ -1,27 +1,10 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../../../../core/providers/core_providers.dart';
 import '../../domain/entities/user.dart';
-import '../../domain/repositories/auth_repository.dart';
 import '../../domain/usecases/sign_in.dart';
-import '../../data/datasources/auth_remote_datasource.dart';
-import '../../data/repositories/auth_repository_impl.dart';
 import '../../../../core/base/base_state.dart';
 import '../../../../core/base/base_notifier.dart';
-
-final authRemoteDataSourceProvider = Provider<AuthRemoteDataSource>((ref) {
-  final dioClient = ref.watch(dioClientProvider);
-  return AuthRemoteDataSourceImpl(dioClient);
-});
-
-final authRepositoryProvider = Provider<AuthRepository>((ref) {
-  final remoteDataSource = ref.watch(authRemoteDataSourceProvider);
-  return AuthRepositoryImpl(remoteDataSource);
-});
-
-final signInUseCaseProvider = Provider<SignIn>((ref) {
-  final repository = ref.watch(authRepositoryProvider);
-  return SignIn(repository);
-});
+import '../../../../core/providers/core_providers.dart';
+import '../../data/repositories/auth_repository_impl.dart';
 
 class AuthState extends BaseState {
   final User? user;

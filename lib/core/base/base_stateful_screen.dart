@@ -12,6 +12,9 @@ abstract class BaseScreenState<W extends BaseStatefulScreen<T>, T extends BaseSt
   /// Subclasses must provide the provider to watch/listen to.
   dynamic get provider;
 
+  /// Subclasses must watch and provide the loading status.
+  bool get isLoading;
+
   Widget body(BuildContext context);
 
   PreferredSizeWidget? appBar(BuildContext context) => null;
@@ -19,14 +22,14 @@ abstract class BaseScreenState<W extends BaseStatefulScreen<T>, T extends BaseSt
   @override
   Widget build(BuildContext context) {
     _listenToState(context);
-    final state = ref.watch(provider);
+    final loading = isLoading;
 
     return GestureDetector(
       onTap: () => FocusScope.of(context).unfocus(),
       child: Stack(
         children: [
           annotatedRegion(context),
-          if (state.isLoading) _showLoading(),
+          if (loading) _showLoading(),
         ],
       ),
     );
