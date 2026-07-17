@@ -50,7 +50,7 @@ class CreateClientScreen extends BaseScreen<CreateClientState> {
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(20),
                 ),
-                color: Colors.white.withOpacity(0.95),
+                color: Colors.white.withValues(alpha: 0.95),
                 child: Padding(
                   padding: const EdgeInsets.all(24.0),
                   child: Column(
@@ -166,7 +166,7 @@ class CreateClientScreen extends BaseScreen<CreateClientState> {
 
                       // Party Type Dropdown
                       DropdownButtonFormField<String>(
-                        value: notifier.partyTypeId.isEmpty ? null : notifier.partyTypeId,
+                        initialValue: notifier.partyTypeId.isEmpty ? null : notifier.partyTypeId,
                         decoration: InputDecoration(
                           labelText: 'Party Type',
                           prefixIcon: const Icon(Icons.group, color: Colors.indigo),

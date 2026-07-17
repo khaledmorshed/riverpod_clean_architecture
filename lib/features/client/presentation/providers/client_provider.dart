@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:fpdart/fpdart.dart';
+import '../../../../core/error/failures.dart';
 import '../../../../core/providers/core_providers.dart';
 import '../../domain/entities/client.dart';
 import '../../domain/repositories/client_repository.dart';
@@ -9,6 +11,8 @@ import '../../data/datasources/client_remote_datasource.dart';
 import '../../data/repositories/client_repository_impl.dart';
 import '../../../../core/base/base_state.dart';
 import '../../../../core/base/base_notifier.dart';
+import '../../../../core/base/paginated_state.dart';
+import '../../../../core/base/paginated_notifier.dart';
 
 final clientRemoteDataSourceProvider = Provider<ClientRemoteDataSource>((ref) {
   final dioClient = ref.watch(dioClientProvider);
@@ -30,97 +34,20 @@ final createClientUseCaseProvider = Provider<CreateClient>((ref) {
   return CreateClient(repository);
 });
 
-// Client List State & Notifier
-class ClientListState extends BaseState {
-  final List<Client> clients;
-  final int page;
-  final String searchQuery;
-  final bool isPaging;
-
-  const ClientListState({
-    super.isLoading = false,
-    super.errorMessage,
-    super.successMessage,
-    this.clients = const [],
-    this.page = 1,
-    this.searchQuery = '',
-    this.isPaging = false,
-  });
-
+// Client List Notifier using Generic PaginatedNotifier
+class ClientListNotifier extends PaginatedNotifier<Client, GetClientsParams> {
   @override
-  ClientListState copyWithBase({
-    bool? isLoading,
-    String? errorMessage,
-    String? successMessage,
-  }) {
-    return copyWith(
-      isLoading: isLoading,
-      errorMessage: errorMessage,
-      successMessage: successMessage,
-    );
+  Future<Either<Failure, List<Client>>> fetchCall(GetClientsParams params) {
+    return ref.read(getClientsUseCaseProvider)(params);
   }
 
-  ClientListState copyWith({
-    bool? isLoading,
-    String? errorMessage,
-    String? successMessage,
-    List<Client>? clients,
-    int? page,
-    String? searchQuery,
-    bool? isPaging,
-  }) {
-    return ClientListState(
-      isLoading: isLoading ?? this.isLoading,
-      errorMessage: errorMessage,
-      successMessage: successMessage,
-      clients: clients ?? this.clients,
-      page: page ?? this.page,
-      searchQuery: searchQuery ?? this.searchQuery,
-      isPaging: isPaging ?? this.isPaging,
-    );
+  @override
+  GetClientsParams buildParams(int page, String search) {
+    return GetClientsParams(page: page, search: search);
   }
 }
 
-class ClientListNotifier extends BaseNotifier<ClientListState> {
-  @override
-  ClientListState build() {
-    Future.microtask(() => fetchClients(refresh: true));
-    return ClientListState();
-  }
-
-  Future<void> fetchClients({bool refresh = false}) async {
-    if (state.isLoading || state.isPaging) return;
-
-    final targetPage = refresh ? 1 : state.page;
-    if (!refresh) {
-      state = state.copyWith(isPaging: true);
-    }
-
-    final getClients = ref.read(getClientsUseCaseProvider);
-    
-    await executeTask(
-      getClients(GetClientsParams(page: targetPage, search: state.searchQuery)),
-      showLoading: refresh,
-      onSuccess: (newClients) {
-        state = state.copyWith(
-          clients: refresh ? newClients : [...state.clients, ...newClients],
-          page: refresh ? 2 : state.page + 1,
-          isPaging: false,
-        );
-      },
-      onError: (_) {
-        state = state.copyWith(isPaging: false);
-      }
-    );
-  }
-
-  void setSearchQuery(String query) {
-    state = state.copyWith(searchQuery: query);
-    fetchClients(refresh: true);
-  }
-}
-
-final clientListProvider = NotifierProvider<ClientListNotifier, ClientListState>(
+final clientListProvider = NotifierProvider<ClientListNotifier, PaginatedState<Client>>(
   ClientListNotifier.new,
 );
 

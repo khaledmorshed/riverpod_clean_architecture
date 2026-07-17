@@ -37,7 +37,7 @@ class InstallationScreen extends BaseScreen<TenantState> {
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(20),
                 ),
-                color: Colors.white.withOpacity(0.95),
+                color: Colors.white.withValues(alpha: 0.95),
                 child: Padding(
                   padding: const EdgeInsets.all(28.0),
                   child: Column(

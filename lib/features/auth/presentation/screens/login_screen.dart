@@ -36,7 +36,7 @@ class LoginScreen extends BaseScreen<AuthState> {
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(24),
                 ),
-                color: Colors.white.withOpacity(0.96),
+                color: Colors.white.withValues(alpha: 0.96),
                 child: Padding(
                   padding: const EdgeInsets.all(32.0),
                   child: Column(

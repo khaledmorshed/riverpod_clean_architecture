@@ -4,13 +4,13 @@ abstract class Failure {
 }
 
 class ServerFailure extends Failure {
-  ServerFailure([String message = 'Server Error']) : super(message);
+  ServerFailure([super.message = 'Server Error']);
 }
 
 class CacheFailure extends Failure {
-  CacheFailure([String message = 'Cache Error']) : super(message);
+  CacheFailure([super.message = 'Cache Error']);
 }
 
 class NetworkFailure extends Failure {
-  NetworkFailure([String message = 'Network Error']) : super(message);
+  NetworkFailure([super.message = 'Network Error']);
 }

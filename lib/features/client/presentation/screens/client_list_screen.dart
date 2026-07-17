@@ -1,18 +1,19 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../providers/client_provider.dart';
 import '../../../../core/base/base_stateful_screen.dart';
+import '../../../../core/base/paginated_state.dart';
 import '../../../../core/widgets/paging_view.dart';
+import '../../domain/entities/client.dart';
 import 'create_client_screen.dart';
 
-class ClientListScreen extends BaseStatefulScreen<ClientListState> {
+class ClientListScreen extends BaseStatefulScreen<PaginatedState<Client>> {
   const ClientListScreen({super.key});
 
   @override
-  BaseScreenState<ClientListScreen, ClientListState> createState() => _ClientListScreenState();
+  BaseScreenState<ClientListScreen, PaginatedState<Client>> createState() => _ClientListScreenState();
 }
 
-class _ClientListScreenState extends BaseScreenState<ClientListScreen, ClientListState> {
+class _ClientListScreenState extends BaseScreenState<ClientListScreen, PaginatedState<Client>> {
   final TextEditingController _searchController = TextEditingController();
 
   @override
@@ -93,13 +94,13 @@ class _ClientListScreenState extends BaseScreenState<ClientListScreen, ClientLis
             Expanded(
               child: PagingView(
                 onRefresh: () async {
-                  ref.read(clientListProvider.notifier).fetchClients(refresh: true);
+                  ref.read(clientListProvider.notifier).fetchItems(refresh: true);
                 },
                 onLoadNextPage: () {
-                  ref.read(clientListProvider.notifier).fetchClients();
+                  ref.read(clientListProvider.notifier).fetchItems();
                 },
                 isLoadingNextPage: state.isPaging,
-                child: state.clients.isEmpty && !state.isLoading
+                child: state.items.isEmpty && !state.isLoading
                     ? const Center(
                         child: Text(
                           'No clients found.',
@@ -109,9 +110,9 @@ class _ClientListScreenState extends BaseScreenState<ClientListScreen, ClientLis
                     : ListView.builder(
                         physics: const AlwaysScrollableScrollPhysics(),
                         padding: const EdgeInsets.symmetric(horizontal: 16),
-                        itemCount: state.clients.length + ((state.isLoading || state.isPaging) ? 1 : 0),
+                        itemCount: state.items.length + ((state.isLoading || state.isPaging) ? 1 : 0),
                         itemBuilder: (context, index) {
-                          if (index == state.clients.length) {
+                          if (index == state.items.length) {
                             return const Center(
                               child: Padding(
                                 padding: EdgeInsets.all(16.0),
@@ -120,7 +121,7 @@ class _ClientListScreenState extends BaseScreenState<ClientListScreen, ClientLis
                             );
                           }
 
-                          final client = state.clients[index];
+                          final client = state.items[index];
 
                           return Card(
                             margin: const EdgeInsets.only(bottom: 12),

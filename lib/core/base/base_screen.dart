@@ -3,10 +3,9 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'base_state.dart';
-import 'base_notifier.dart';
 
 abstract class BaseScreen<T extends BaseState> extends ConsumerWidget {
-  const BaseScreen({Key? key}) : super(key: key);
+  const BaseScreen({super.key});
 
   /// Subclasses must provide the provider to watch/listen to.
   dynamic get provider;
