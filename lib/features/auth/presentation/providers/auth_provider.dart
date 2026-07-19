@@ -124,7 +124,10 @@ class AuthNotifier extends BaseNotifier<AuthState> {
     await executeTask(
       signIn(params),
       onSuccess: (user) {
-        ref.read(localStorageProvider).saveToken(user.token);
+        final storage = ref.read(localStorageProvider);
+        storage.saveToken(user.token);
+        storage.saveRoleId(user.roleId);
+        storage.saveWarehouseId(user.warehouseId);
         state = state.copyWith(user: user, successMessage: 'Welcome back, ${user.displayName}!');
       },
     );

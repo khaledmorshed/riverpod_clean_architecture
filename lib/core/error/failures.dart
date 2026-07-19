@@ -14,3 +14,8 @@ class CacheFailure extends Failure {
 class NetworkFailure extends Failure {
   NetworkFailure([super.message = 'Network Error']);
 }
+
+class ValidationFailure extends Failure {
+  final Map<String, dynamic> errors;
+  ValidationFailure(super.message, this.errors);
+}

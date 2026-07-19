@@ -14,7 +14,7 @@ T _$identity<T>(T value) => value;
 /// @nodoc
 mixin _$UserModel {
 
- String get id; String get displayName; String get email; String get phone; String get token;
+ String get id; String get displayName; String get email; String get phone; String get token; String get roleId; String get warehouseId;
 /// Create a copy of UserModel
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -25,16 +25,16 @@ $UserModelCopyWith<UserModel> get copyWith => _$UserModelCopyWithImpl<UserModel>
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is UserModel&&(identical(other.id, id) || other.id == id)&&(identical(other.displayName, displayName) || other.displayName == displayName)&&(identical(other.email, email) || other.email == email)&&(identical(other.phone, phone) || other.phone == phone)&&(identical(other.token, token) || other.token == token));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is UserModel&&(identical(other.id, id) || other.id == id)&&(identical(other.displayName, displayName) || other.displayName == displayName)&&(identical(other.email, email) || other.email == email)&&(identical(other.phone, phone) || other.phone == phone)&&(identical(other.token, token) || other.token == token)&&(identical(other.roleId, roleId) || other.roleId == roleId)&&(identical(other.warehouseId, warehouseId) || other.warehouseId == warehouseId));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,id,displayName,email,phone,token);
+int get hashCode => Object.hash(runtimeType,id,displayName,email,phone,token,roleId,warehouseId);
 
 @override
 String toString() {
-  return 'UserModel(id: $id, displayName: $displayName, email: $email, phone: $phone, token: $token)';
+  return 'UserModel(id: $id, displayName: $displayName, email: $email, phone: $phone, token: $token, roleId: $roleId, warehouseId: $warehouseId)';
 }
 
 
@@ -45,7 +45,7 @@ abstract mixin class $UserModelCopyWith<$Res>  {
   factory $UserModelCopyWith(UserModel value, $Res Function(UserModel) _then) = _$UserModelCopyWithImpl;
 @useResult
 $Res call({
- String id, String displayName, String email, String phone, String token
+ String id, String displayName, String email, String phone, String token, String roleId, String warehouseId
 });
 
 
@@ -62,13 +62,15 @@ class _$UserModelCopyWithImpl<$Res>
 
 /// Create a copy of UserModel
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? displayName = null,Object? email = null,Object? phone = null,Object? token = null,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? displayName = null,Object? email = null,Object? phone = null,Object? token = null,Object? roleId = null,Object? warehouseId = null,}) {
   return _then(_self.copyWith(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as String,displayName: null == displayName ? _self.displayName : displayName // ignore: cast_nullable_to_non_nullable
 as String,email: null == email ? _self.email : email // ignore: cast_nullable_to_non_nullable
 as String,phone: null == phone ? _self.phone : phone // ignore: cast_nullable_to_non_nullable
 as String,token: null == token ? _self.token : token // ignore: cast_nullable_to_non_nullable
+as String,roleId: null == roleId ? _self.roleId : roleId // ignore: cast_nullable_to_non_nullable
+as String,warehouseId: null == warehouseId ? _self.warehouseId : warehouseId // ignore: cast_nullable_to_non_nullable
 as String,
   ));
 }
@@ -154,10 +156,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String id,  String displayName,  String email,  String phone,  String token)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String id,  String displayName,  String email,  String phone,  String token,  String roleId,  String warehouseId)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _UserModel() when $default != null:
-return $default(_that.id,_that.displayName,_that.email,_that.phone,_that.token);case _:
+return $default(_that.id,_that.displayName,_that.email,_that.phone,_that.token,_that.roleId,_that.warehouseId);case _:
   return orElse();
 
 }
@@ -175,10 +177,10 @@ return $default(_that.id,_that.displayName,_that.email,_that.phone,_that.token);
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String id,  String displayName,  String email,  String phone,  String token)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String id,  String displayName,  String email,  String phone,  String token,  String roleId,  String warehouseId)  $default,) {final _that = this;
 switch (_that) {
 case _UserModel():
-return $default(_that.id,_that.displayName,_that.email,_that.phone,_that.token);case _:
+return $default(_that.id,_that.displayName,_that.email,_that.phone,_that.token,_that.roleId,_that.warehouseId);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -195,10 +197,10 @@ return $default(_that.id,_that.displayName,_that.email,_that.phone,_that.token);
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String id,  String displayName,  String email,  String phone,  String token)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String id,  String displayName,  String email,  String phone,  String token,  String roleId,  String warehouseId)?  $default,) {final _that = this;
 switch (_that) {
 case _UserModel() when $default != null:
-return $default(_that.id,_that.displayName,_that.email,_that.phone,_that.token);case _:
+return $default(_that.id,_that.displayName,_that.email,_that.phone,_that.token,_that.roleId,_that.warehouseId);case _:
   return null;
 
 }
@@ -210,7 +212,7 @@ return $default(_that.id,_that.displayName,_that.email,_that.phone,_that.token);
 
 
 class _UserModel extends UserModel {
-  const _UserModel({required this.id, required this.displayName, required this.email, required this.phone, required this.token}): super._();
+  const _UserModel({required this.id, required this.displayName, required this.email, required this.phone, required this.token, required this.roleId, required this.warehouseId}): super._();
   
 
 @override final  String id;
@@ -218,6 +220,8 @@ class _UserModel extends UserModel {
 @override final  String email;
 @override final  String phone;
 @override final  String token;
+@override final  String roleId;
+@override final  String warehouseId;
 
 /// Create a copy of UserModel
 /// with the given fields replaced by the non-null parameter values.
@@ -229,16 +233,16 @@ _$UserModelCopyWith<_UserModel> get copyWith => __$UserModelCopyWithImpl<_UserMo
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _UserModel&&(identical(other.id, id) || other.id == id)&&(identical(other.displayName, displayName) || other.displayName == displayName)&&(identical(other.email, email) || other.email == email)&&(identical(other.phone, phone) || other.phone == phone)&&(identical(other.token, token) || other.token == token));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _UserModel&&(identical(other.id, id) || other.id == id)&&(identical(other.displayName, displayName) || other.displayName == displayName)&&(identical(other.email, email) || other.email == email)&&(identical(other.phone, phone) || other.phone == phone)&&(identical(other.token, token) || other.token == token)&&(identical(other.roleId, roleId) || other.roleId == roleId)&&(identical(other.warehouseId, warehouseId) || other.warehouseId == warehouseId));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,id,displayName,email,phone,token);
+int get hashCode => Object.hash(runtimeType,id,displayName,email,phone,token,roleId,warehouseId);
 
 @override
 String toString() {
-  return 'UserModel(id: $id, displayName: $displayName, email: $email, phone: $phone, token: $token)';
+  return 'UserModel(id: $id, displayName: $displayName, email: $email, phone: $phone, token: $token, roleId: $roleId, warehouseId: $warehouseId)';
 }
 
 
@@ -249,7 +253,7 @@ abstract mixin class _$UserModelCopyWith<$Res> implements $UserModelCopyWith<$Re
   factory _$UserModelCopyWith(_UserModel value, $Res Function(_UserModel) _then) = __$UserModelCopyWithImpl;
 @override @useResult
 $Res call({
- String id, String displayName, String email, String phone, String token
+ String id, String displayName, String email, String phone, String token, String roleId, String warehouseId
 });
 
 
@@ -266,13 +270,15 @@ class __$UserModelCopyWithImpl<$Res>
 
 /// Create a copy of UserModel
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? displayName = null,Object? email = null,Object? phone = null,Object? token = null,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? displayName = null,Object? email = null,Object? phone = null,Object? token = null,Object? roleId = null,Object? warehouseId = null,}) {
   return _then(_UserModel(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as String,displayName: null == displayName ? _self.displayName : displayName // ignore: cast_nullable_to_non_nullable
 as String,email: null == email ? _self.email : email // ignore: cast_nullable_to_non_nullable
 as String,phone: null == phone ? _self.phone : phone // ignore: cast_nullable_to_non_nullable
 as String,token: null == token ? _self.token : token // ignore: cast_nullable_to_non_nullable
+as String,roleId: null == roleId ? _self.roleId : roleId // ignore: cast_nullable_to_non_nullable
+as String,warehouseId: null == warehouseId ? _self.warehouseId : warehouseId // ignore: cast_nullable_to_non_nullable
 as String,
   ));
 }

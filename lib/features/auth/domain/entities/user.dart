@@ -4,6 +4,8 @@ class User {
   final String email;
   final String phone;
   final String token;
+  final String roleId;
+  final String warehouseId;
 
   User({
     required this.id,
@@ -11,5 +13,7 @@ class User {
     required this.email,
     required this.phone,
     required this.token,
+    required this.roleId,
+    required this.warehouseId,
   });
 }

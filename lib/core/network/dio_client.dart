@@ -44,6 +44,16 @@ class HeaderInterceptor extends Interceptor {
       options.headers['Authorization'] = 'Bearer $token';
     }
 
+    final roleId = _localStorage.getRoleId();
+    if (roleId != null && roleId.isNotEmpty) {
+      options.headers['role-id'] = roleId;
+    }
+
+    final warehouseId = _localStorage.getWarehouseId();
+    if (warehouseId != null && warehouseId.isNotEmpty) {
+      options.headers['warehouse-id'] = warehouseId;
+    }
+
     super.onRequest(options, handler);
   }
 }

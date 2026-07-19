@@ -243,9 +243,7 @@ class _CreateClientScreenState extends BaseScreenState<CreateClientScreen, Creat
 
                     // Submit Button
                     ElevatedButton(
-                      onPressed: (isFormValid && !isLoading)
-                          ? () => notifier.submitClient()
-                          : null,
+                      onPressed: (isFormValid && !isLoading) ? () => notifier.submitClient() : null,
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Colors.indigo,
                         foregroundColor: Colors.white,

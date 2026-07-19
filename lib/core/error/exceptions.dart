@@ -28,13 +28,21 @@ class ServerException implements Exception {
   static Exception _parseDioErrorResponse(DioException e) {
     final statusCode = e.response?.statusCode ?? -1;
     String? serverMessage;
+    Map<String, dynamic>? errors;
 
     try {
       final data = e.response?.data;
       if (data is Map) {
         serverMessage = data['message']?.toString();
+        if (data.containsKey('errors') && data['errors'] is Map) {
+          errors = Map<String, dynamic>.from(data['errors'] as Map);
+        }
       }
     } catch (_) {}
+
+    if (statusCode == 422 && errors != null) {
+      return ValidationException(serverMessage ?? "Validation failed", errors);
+    }
 
     switch (statusCode) {
       case 503:
@@ -55,4 +63,10 @@ class CacheException implements Exception {
 class NetworkException implements Exception {
   final String message;
   NetworkException([this.message = 'Network Error']);
+}
+
+class ValidationException implements Exception {
+  final String message;
+  final Map<String, dynamic> errors;
+  ValidationException(this.message, this.errors);
 }

@@ -86,8 +86,8 @@ class CreateClientState extends BaseState {
     String? openingBalance,
     String? creditDueLimit,
     String? partyTypeId,
-    String? firstNameError,
-    String? mobileError,
+    String? Function()? firstNameError,
+    String? Function()? mobileError,
     bool? isFormValid,
   }) {
     return CreateClientState(
@@ -103,8 +103,8 @@ class CreateClientState extends BaseState {
       openingBalance: openingBalance ?? this.openingBalance,
       creditDueLimit: creditDueLimit ?? this.creditDueLimit,
       partyTypeId: partyTypeId ?? this.partyTypeId,
-      firstNameError: firstNameError ?? this.firstNameError,
-      mobileError: mobileError ?? this.mobileError,
+      firstNameError: firstNameError != null ? firstNameError() : this.firstNameError,
+      mobileError: mobileError != null ? mobileError() : this.mobileError,
       isFormValid: isFormValid ?? this.isFormValid,
     );
   }
@@ -166,8 +166,8 @@ class CreateClientNotifier extends BaseNotifier<CreateClientState> {
     }
 
     state = state.copyWith(
-      firstNameError: firstNameErr,
-      mobileError: mobileErr,
+      firstNameError: () => firstNameErr,
+      mobileError: () => mobileErr,
       isFormValid: firstNameErr == null && mobileErr == null && state.partyTypeId.isNotEmpty && firstName.isNotEmpty && mobile.isNotEmpty,
     );
   }
@@ -178,7 +178,7 @@ class CreateClientNotifier extends BaseNotifier<CreateClientState> {
     state = state.copyWith(isSuccess: false);
 
     final params = CreateClientParams(
-      firstName: state.firstName,
+      firstName: /*state.firstName*/"",
       lastName: state.lastName,
       email: state.email,
       phone: state.mobile,
@@ -194,6 +194,18 @@ class CreateClientNotifier extends BaseNotifier<CreateClientState> {
       createClient(params),
       onSuccess: (_) {
         state = state.copyWith(isSuccess: true, successMessage: 'Client created successfully!');
+      },
+      onError: (failure) {
+        if (failure is ValidationFailure) {
+          final firstNameErr = (failure.errors['first_name'] as List<dynamic>?)?.firstOrNull?.toString();
+          final mobileErr = (failure.errors['phone'] as List<dynamic>?)?.firstOrNull?.toString()
+                         ?? (failure.errors['mobile'] as List<dynamic>?)?.firstOrNull?.toString();
+
+          state = state.copyWith(
+            firstNameError: () => firstNameErr,
+            mobileError: () => mobileErr,
+          );
+        }
       },
     );
   }

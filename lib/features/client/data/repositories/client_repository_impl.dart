@@ -32,6 +32,8 @@ class ClientRepositoryImpl implements ClientRepository {
     try {
       final message = await remoteDataSource.createClient(params);
       return Right(message);
+    } on ValidationException catch (e) {
+      return Left(ValidationFailure(e.message, e.errors));
     } on ServerException catch (e) {
       return Left(ServerFailure(e.message));
     } on NetworkException catch (e) {

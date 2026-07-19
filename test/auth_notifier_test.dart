@@ -83,6 +83,8 @@ void main() {
       email: 'test@example.com',
       phone: '123456',
       token: 'jwt_token',
+      roleId: 'role_123',
+      warehouseId: 'warehouse_456',
     );
 
     final mockSignIn = FakeSignIn(Right(testUser));
@@ -98,6 +100,8 @@ void main() {
     expect(state.user, testUser);
     expect(state.successMessage, 'Welcome back, Khaled!');
     expect(localStorage.getToken(), 'jwt_token');
+    expect(localStorage.getRoleId(), 'role_123');
+    expect(localStorage.getWarehouseId(), 'warehouse_456');
   });
 
   test('submitLogin failure sets error message', () async {
